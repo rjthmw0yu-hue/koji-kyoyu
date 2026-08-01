@@ -39,23 +39,21 @@ export default async function TasksPage({
   })
 
   return (
-    <div className="space-y-8 p-6">
-      <h1 className="text-2xl font-bold">問い合わせ・タスク一覧</h1>
-
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <div className="rounded-lg border p-4">
+    <div className="space-y-3 p-2">
+      <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+        <div className="rounded-lg border p-2">
           <p className="text-sm text-gray-500">未対応</p>
           <p className="text-2xl font-bold">{summary.未対応}</p>
         </div>
-        <div className="rounded-lg border p-4">
+        <div className="rounded-lg border p-2">
           <p className="text-sm text-gray-500">対応中</p>
           <p className="text-2xl font-bold">{summary.対応中}</p>
         </div>
-        <div className="rounded-lg border p-4">
+        <div className="rounded-lg border p-2">
           <p className="text-sm text-gray-500">対応済み</p>
           <p className="text-2xl font-bold">{summary.対応済み}</p>
         </div>
-        <div className="rounded-lg border border-red-300 bg-red-50 p-4">
+        <div className="rounded-lg border border-red-300 bg-red-50 p-2">
           <p className="text-sm text-red-600">期限超過</p>
           <p className="text-2xl font-bold text-red-600">{summary.期限超過}</p>
         </div>
