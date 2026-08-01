@@ -1,0 +1,37 @@
+import { AppSidebar } from "@/components/app-sidebar"
+import { SiteHeader } from "@/components/site-header"
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import { logout } from "@/app/login/actions"
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <SidebarProvider
+      style={
+        {
+          "--sidebar-width": "calc(var(--spacing) * 72)",
+          "--header-height": "calc(var(--spacing) * 12)",
+        } as React.CSSProperties
+      }
+    >
+      <AppSidebar variant="inset" />
+      <SidebarInset>
+        <SiteHeader />
+        <div className="flex justify-end p-4">
+          <form action={logout}>
+            <button
+              type="submit"
+              className="rounded border px-3 py-1 text-sm hover:bg-gray-100"
+            >
+              ログアウト
+            </button>
+          </form>
+        </div>
+        {children}
+      </SidebarInset>
+    </SidebarProvider>
+  )
+}
