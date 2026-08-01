@@ -1,13 +1,21 @@
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { updateTaskStatus } from './actions'
 import { NewTaskForm } from './NewTaskForm'
 
+const sortableFields: Record<string, string> = {
+  counterpart_type: '相手先',
+  due_date: '期限',
+  priority: '優先度',
+  status: 'ステータス',
+}
+
 export default async function TasksPage({
   searchParams,
 }: {
-  searchParams: Promise<{ assignee?: string }>
+  searchParams: Promise<{ assignee?: string; sort?: string; dir?: string }>
 }) {
-  const { assignee } = await searchParams
+  const { assignee, sort, dir } = await searchParams
   const supabase = await createClient()
 
   const { data: allTasks } = await supabase.from('tasks').select('*')
@@ -32,11 +40,27 @@ export default async function TasksPage({
     ? allTasks?.filter((t) => t.assignee === assignee)
     : allTasks
 
+  const sortField = sort && sortableFields[sort] ? sort : 'due_date'
+  const sortDir = dir === 'desc' ? 'desc' : 'asc'
+
   const sortedTasks = [...(filteredTasks ?? [])].sort((a, b) => {
-    if (!a.due_date) return 1
-    if (!b.due_date) return -1
-    return a.due_date.localeCompare(b.due_date)
+    const aVal = a[sortField as keyof typeof a] ?? ''
+    const bVal = b[sortField as keyof typeof b] ?? ''
+    if (aVal === '' && bVal === '') return 0
+    if (aVal === '') return 1
+    if (bVal === '') return -1
+    const cmp = String(aVal).localeCompare(String(bVal))
+    return sortDir === 'asc' ? cmp : -cmp
   })
+
+  function sortHref(field: string) {
+    const nextDir = sortField === field && sortDir === 'asc' ? 'desc' : 'asc'
+    const params = new URLSearchParams()
+    if (assignee) params.set('assignee', assignee)
+    params.set('sort', field)
+    params.set('dir', nextDir)
+    return `/dashboard/tasks?${params.toString()}`
+  }
 
   return (
     <div className="space-y-3 p-2">
@@ -79,13 +103,33 @@ export default async function TasksPage({
       <table className="w-full border-collapse text-sm">
         <thead>
           <tr className="border-b text-left">
-            <th className="p-2">相手先</th>
+            <th className="p-2">
+              <Link href={sortHref('counterpart_type')} className="flex items-center gap-1 hover:underline">
+                相手先
+                {sortField === 'counterpart_type' && <span>{sortDir === 'asc' ? '▲' : '▼'}</span>}
+              </Link>
+            </th>
             <th className="p-2">会社名・氏名</th>
             <th className="p-2">内容</th>
-            <th className="p-2">期限</th>
-            <th className="p-2">優先度</th>
+            <th className="p-2">
+              <Link href={sortHref('due_date')} className="flex items-center gap-1 hover:underline">
+                期限
+                {sortField === 'due_date' && <span>{sortDir === 'asc' ? '▲' : '▼'}</span>}
+              </Link>
+            </th>
+            <th className="p-2">
+              <Link href={sortHref('priority')} className="flex items-center gap-1 hover:underline">
+                優先度
+                {sortField === 'priority' && <span>{sortDir === 'asc' ? '▲' : '▼'}</span>}
+              </Link>
+            </th>
             <th className="p-2">担当</th>
-            <th className="p-2">ステータス</th>
+            <th className="p-2">
+              <Link href={sortHref('status')} className="flex items-center gap-1 hover:underline">
+                ステータス
+                {sortField === 'status' && <span>{sortDir === 'asc' ? '▲' : '▼'}</span>}
+              </Link>
+            </th>
           </tr>
         </thead>
         <tbody>
